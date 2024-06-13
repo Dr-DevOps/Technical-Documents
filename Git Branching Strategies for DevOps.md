@@ -6,7 +6,7 @@ In the fast-paced world of software engineering, efficient and effective code ma
 
 ## Prerequisites
 
-This article is intended for readers who are already familiar with GitHub and understand its functionality. If you’re new to GitHub, consider exploring some introductory resources [HERE](#).
+This article is intended for readers who are already familiar with GitHub and understand its functionality. If you’re new to GitHub, consider exploring some introductory resources [HERE](https://education.github.com/git-cheat-sheet-education.pdf).
 
 ## Understanding Git Branching
 
