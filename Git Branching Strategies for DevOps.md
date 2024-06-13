@@ -105,7 +105,7 @@ git merge develop
 git tag -a v1.0 -m "Release version 1.0"
 
 
-```markdown
+
 # Choosing the Right Git Branching Strategy
 
 ## Team Size
@@ -159,4 +159,3 @@ git tag -a v1.0 -m "Release version 1.0"
 ## Conclusion
 
 Choosing the right Git branching strategy is crucial for maintaining efficiency and collaboration within your team. By understanding the needs of your team size and deployment frequency, you can select a strategy that balances simplicity and structure, ensuring smooth development workflows.
-```
