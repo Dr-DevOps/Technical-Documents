@@ -104,7 +104,7 @@ git merge develop
 # Tag the release
 git tag -a v1.0 -m "Release version 1.0"
 
-
+```
 
 # Choosing the Right Git Branching Strategy
 
