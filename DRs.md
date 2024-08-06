@@ -209,8 +209,13 @@ Configure a Redis ElastiCache cluster in your Terraform files:
 
 ## 5. Deploying Your DR Environment
 
+### 5.1 Applying Terraform Configuration
+
 1. Open Terminal
-2. Navigate to your Terraform directory
+2. Navigate to your Terraform directory:
+   ```
+   cd aws-terraform/DRs-Prod
+   ```
 3. Initialize Terraform:
    ```
    terraform init
@@ -224,6 +229,87 @@ Configure a Redis ElastiCache cluster in your Terraform files:
    terraform apply
    ```
 6. When prompted, type 'yes' to confirm the changes
+
+### 5.2 Restoring RDS in DR Region from AWS Backup
+
+1. Log in to the AWS Management Console
+
+2. Switch to the DR region (e.g., us-east-1)
+
+3. Navigate to AWS Backup:
+   - Go to the AWS Backup console
+   - In the left navigation pane, choose "Backup vaults"
+
+4. Locate the backup:
+   - Select the appropriate backup vault
+   - Find the most recent RDS backup for your production database
+
+5. Initiate the restore process:
+   - Select the backup you want to restore
+   - Click "Restore" to start the restoration process
+
+6. Configure the restore settings:
+   - Choose "Restore to new RDS database" as the restore type
+   - Select the appropriate DB engine version (should match your production version)
+   - Choose the DB instance class (match or scale as needed for DR)
+   - Set up network & security:
+     - VPC: Select the VPC created by Terraform for your DR environment
+     - Subnet group: Choose the subnet group for your DR environment
+     - Public accessibility: typically set to 'No' for security
+     - VPC security group: Select the security group created for RDS in your DR environment
+   - Configure instance settings:
+     - DB instance identifier: Give it a unique name (e.g., "drs-prod-db")
+     - Set the master username and password
+   - Additional configuration:
+     - Set parameters like backup retention, monitoring, etc., to match your DR requirements
+
+7. Review and initiate restore:
+   - Review all settings
+   - Click "Restore DB instance"
+
+8. Monitor the restore process:
+   - Go to the RDS console
+   - Find your new DR database instance
+   - Wait for the status to change to "Available"
+
+9. Update your application configurations:
+   - Once the database is available, go to its details page in the RDS console
+   - Copy the endpoint address
+   - Update your application manifests or environment variables with this new endpoint
+
+10. Verify database accessibility:
+    - From your bastion host or an application instance, try connecting to the new database to ensure it's accessible
+
+11. (Optional) Set up ongoing replication:
+    - If continuous replication from production to DR is required, consider setting up AWS DMS (Database Migration Service) for ongoing replication
+
+### 5.3 Verifying the Deployment
+
+1. Check AWS resources:
+   - Log into the AWS Console
+   - Verify that all expected resources (VPC, EKS, ECR, S3, etc.) are created in the DR region
+
+2. Verify EKS cluster:
+   ```
+   aws eks --region us-east-1 describe-cluster --name drs-prod-vi
+   ```
+
+3. Update kubeconfig:
+   ```
+   aws eks --region us-east-1 update-kubeconfig --name drs-prod-vi
+   ```
+
+4. Check nodes:
+   ```
+   kubectl get nodes
+   ```
+
+5. Verify other AWS services:
+   - Check ECR repositories
+   - Verify S3 bucket creation
+   - Ensure Secrets Manager secrets are replicated
+
+6. Review security groups and IAM roles to ensure proper access and permissions
 
 ## 6. Setting Up Argo CD
 
