@@ -122,34 +122,46 @@ Set up an EKS cluster (version 1.28) in your Terraform configuration:
 2. Configure node groups
 3. Set up necessary IAM roles and policies
 
-### 4.6 Configuring Elastic Container Registry (ECR)
+## 4. Existing DR Environment Configuration
 
-Enable cross-region replication for ECR:
+### 4.6 Elastic Container Registry (ECR)
 
-1. Define the ECR repository
-2. Configure replication rules to replicate images from production to DR region
+Cross Region Replication for ECR is already configured and operational:
 
-### 4.7 Setting Up Secrets Manager
+- The production backend core ECR repository (prod-be-core) is replicated to the DR region.
+- Repository URL: 832726350816.dkr.ecr.us-east-1.amazonaws.com/prod-be-core
 
-Enable cross-region replication for AWS Secrets Manager:
+No additional setup is required. The DR environment will use these replicated images automatically.
 
-1. Define the Secrets Manager resources
-2. Configure replication from production to DR region
+### 4.7 Secrets Manager
 
-### 4.8 Configuring S3 Buckets
+AWS Secrets Manager replication is fully configured:
 
-Set up cross-region replication for S3 buckets:
+- All necessary secrets are being replicated from US-EAST-1 to the DR region.
+- The DR environment is set up to use these replicated secrets.
 
-1. Define S3 buckets with "drs" prefix
-2. Configure replication rules
-3. Set up necessary IAM roles for replication
+No further action is needed. Your applications in the DR environment will access the correct, replicated secrets.
 
-### 4.9 Setting Up the Database (RDS)
+### 4.8 S3 Buckets
 
-For the database, you'll need to:
+Cross Region Replication for S3 is in place:
 
-1. Restore the RDS database from AWS Backup (this is a manual step)
-2. Update your Terraform configuration to match the restored database settings
+- Both internal and external system buckets are being replicated from US-EAST-1 to the DR region.
+- Buckets with the prefix "drs" are used for backend applications in the DR environment.
+
+The DR environment is configured to use these replicated buckets. No additional setup is required.
+
+### 4.9 Database (RDS)
+
+RDS Cross Region Replication is active:
+
+- The production database is being replicated to the DR region.
+- The DR environment is configured to use this replicated database.
+
+Important: While replication is ongoing, for the most up-to-date data in case of failover:
+1. Use the most recent AWS Backup snapshot of your production database.
+2. Restore this snapshot in the DR region if needed.
+3. The backend application manifests are already updated with the correct database endpoint for the DR environment.
 
 ### 4.10 Configuring Amazon Managed Streaming for Apache Kafka (MSK)
 
