@@ -1,20 +1,50 @@
-Certainly. I'll provide a more detailed guide, breaking down each step further for a comprehensive understanding of the Disaster Recovery (DR) system setup for AWS and EKS.
-
 # Comprehensive Disaster Recovery System Guide for AWS and EKS
 
 ## 1. Introduction
 
 Disaster Recovery (DR) is a critical strategy ensuring business continuity in unexpected events. This guide will walk you through setting up a DR environment using Amazon Web Services (AWS) and Elastic Kubernetes Service (EKS), mirroring your production environment to ensure seamless operations in case of a disaster.
 
+
+
 ## 2. Prerequisites
 
 Before beginning the DR setup process, ensure you have the following:
 
 1. An AWS account with administrative permissions
+
 2. Terraform installed on your local machine (version 1.2.0 or higher)
+
 3. AWS Command Line Interface (CLI) installed and configured
-4. Access to your organization's GitHub repository containing Terraform configuration files
+
+4. Access to the following GitHub repositories:
+   - Terraform Repository: [https://github.com/viplatform/aws-terraform](https://github.com/viplatform/aws-terraform)
+   - Helm Chart Repository: [https://github.com/viplatform/helmcharts](https://github.com/viplatform/helmcharts)
+
 5. Basic familiarity with command-line operations
+
+Important Information:
+- The DR environment Terraform configuration is located in the `DRs-Prod` directory of the Terraform repository.
+- Helm charts and application manifests for the DR environment are located in the `drs-prod-vi` directory of the Helm chart repository.
+
+Basic Steps:
+
+a. Clone the repositories:
+   ```
+   git clone https://github.com/viplatform/aws-terraform.git
+   git clone https://github.com/viplatform/helmcharts.git
+   ```
+
+b. Navigate to the DR environment directories:
+   - For Terraform: `cd aws-terraform/DRs-Prod`
+   - For Helm charts: `cd helmcharts/drs-prod-vi`
+
+c. Review and familiarize yourself with the contents of these directories, as they contain the configurations specific to your DR environment.
+
+d. Ensure you have the necessary permissions to make changes to these repositories and to create/modify resources in your AWS account.
+
+e. Set up your local environment with the required tools (AWS CLI, Terraform, kubectl, helm etc.) as detailed in the following sections.
+
+By having these prerequisites in place and understanding the repository structure, you'll be well-prepared to set up and manage your Disaster Recovery environment using the provided configurations.
 
 ## 3. Setting Up Your Tools
 
