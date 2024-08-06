@@ -247,6 +247,30 @@ Configure a Redis ElastiCache cluster in your Terraform files:
 3. Add your Helm chart repository
 4. Create applications for each of your services
 
+### 6.5 Reviewing and Updating IAM Roles
+
+Log in to the AWS Management Console and navigate to IAM.
+Review all roles created for the EKS DRs cluster.
+For each relevant role:
+a. Check the permissions to ensure they match your DR requirements.
+b. Update the trust relationships if necessary.
+Specifically, check the drs-AWSSecretManagerAccessProd Role:
+a. Go to the role's "Trust relationships" tab.
+b. Edit the trust relationship.
+c. Ensure the following line is present and correct:
+jsonCopy"oidc.eks.us-east-1.amazonaws.com/id/CE4F7AC97FCC50606C1AF23D17D0C463:sub": "system:serviceaccount:default:sa-eso"
+d. If it's not present or needs updating, add or modify it accordingly.
+e. Save the changes.
+
+### 6.6 Updating Application Manifests
+
+Navigate to your Helm charts repository.
+Locate the DRs-prod-vi directory.
+Review and update all Helm charts and manifests in this directory:
+a. Ensure all references to IAM roles are correct and match the roles you reviewed in step 6.2.
+b. Update any environment-specific configurations to match your DR setup.
+c. Verify that all necessary changes from the production environment are reflected here.
+
 ## 7. Final Configuration Steps
 
 ### 7.1 Updating DNS Records
