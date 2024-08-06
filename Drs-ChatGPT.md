@@ -363,12 +363,16 @@ region us-east-1 describe-cluster --name drs-prod-vi
 1. Log in to your Cloudflare account.
 2. Navigate to the DNS settings for your domain.
 3. Update CNAME records to point to your new DR environment ingresses.
+4. check ingresses for all apps:
+   ```bash
+   kubectl get ing -A
+   ```
 
 ### 8.2 Configuring Content Delivery Network (CDN)
 
 1. Remove the CNAME from the existing production CloudFront distribution.
 2. Create a new CloudFront distribution for your DR environment.
-3. Update the S3 bucket for your frontend build.
+3. Update the S3 bucket for your front-end build.
 4. Adjust IAM policies to allow access to the DR S3 buckets.
 
 ## 9. Testing and Maintenance
