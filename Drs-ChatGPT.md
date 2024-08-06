@@ -299,7 +299,7 @@ region us-east-1 describe-cluster --name drs-prod-vi
    helm repo update
    ```
 
-2. Install Argo CD:
+2. Install Argo CD (go to cloned "helmchart/drs-prod-vi"):
    ```bash
    helm upgrade --install argocd argo/argo-cd --version 5.27.1 --namespace argocd --values drs-prod-vi/argocd-values.yaml
    ```
