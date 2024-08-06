@@ -1,7 +1,3 @@
-Here's a rewritten version of your instructions, formatted for a GitHub README file to be more engaging and easy to follow:
-
----
-
 # Disaster Recovery (DR) Setup Guide
 
 This guide assumes you're replicating from a primary region (e.g., `ap-southeast-1`) to a DR region (e.g., `us-east-1`). Follow these steps to ensure your disaster recovery environment is robust and ready to go.
