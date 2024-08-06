@@ -4,7 +4,7 @@ Certainly. I'll provide a more detailed guide, breaking down each step further f
 
 ## 1. Introduction
 
-Disaster Recovery (DR) is a critical strategy that ensures business continuity in the face of unexpected events. This guide will walk you through setting up a DR environment using Amazon Web Services (AWS) and Elastic Kubernetes Service (EKS), mirroring your production environment to ensure seamless operations in case of a disaster.
+Disaster Recovery (DR) is a critical strategy ensuring business continuity in unexpected events. This guide will walk you through setting up a DR environment using Amazon Web Services (AWS) and Elastic Kubernetes Service (EKS), mirroring your production environment to ensure seamless operations in case of a disaster.
 
 ## 2. Prerequisites
 
@@ -206,7 +206,7 @@ Configure a Redis ElastiCache cluster in your Terraform files:
    ```
    Replace "drs-prod-vi" with your actual EKS cluster name
 
-3. If you encounter connection issues, you may need to update the cluster's security group in the AWS console to allow inbound traffic from your IP address
+3. If you encounter connection issues, you may need to update the cluster's security group in the AWS EKS Subnet console to allow inbound traffic from CIDR IP range
 
 ### 6.2 Installing Argo CD
 
