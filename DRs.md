@@ -131,22 +131,22 @@ Cross Region Replication for ECR is already configured and operational:
 - The production backend core ECR repository (prod-be-core) is replicated to the DR region.
 - Repository URL: 832726350816.dkr.ecr.us-east-1.amazonaws.com/prod-be-core
 
-No additional setup is required. The DR environment will use these replicated images automatically.
+You don't need to do any additional setup. The DR environment will use these replicated images automatically.
 
 ### 4.7 Secrets Manager
 
 AWS Secrets Manager replication is fully configured:
 
-- All necessary secrets are being replicated from US-EAST-1 to the DR region.
+- All necessary secrets are being replicated to US-EAST-1.
 - The DR environment is set up to use these replicated secrets.
 
-No further action is needed. Your applications in the DR environment will access the correct, replicated secrets.
+There's no need for anything else. Your applications in the DR environment will access the correct, replicated secrets.
 
 ### 4.8 S3 Buckets
 
 Cross Region Replication for S3 is in place:
 
-- Both internal and external system buckets are being replicated from US-EAST-1 to the DR region.
+- Both internal and external system buckets are being replicated to US-EAST-1.
 - Buckets with the prefix "drs" are used for backend applications in the DR environment.
 
 The DR environment is configured to use these replicated buckets. No additional setup is required.
