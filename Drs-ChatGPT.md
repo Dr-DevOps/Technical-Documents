@@ -230,6 +230,61 @@ Configure a Redis ElastiCache cluster in your Terraform files:
 1. Define the ElastiCache cluster resource.
 2. Set up subnet groups and security groups.
 
+### **5.8. Checking for Existing ACM Certificates in the DR Region**
+
+1. **Log In to the AWS Management Console:**
+   - Go to the [AWS Management Console](https://aws.amazon.com/console/) and log in.
+
+2. **Select the DR Region:**
+   - Choose the appropriate DR region from the region dropdown in the top-right corner.
+
+3. **Open ACM Console:**
+   - Navigate to the [AWS Certificate Manager (ACM) Console](https://console.aws.amazon.com/acm/home).
+
+4. **View Certificates:**
+   - Review the list of certificates to check if there are any for `*.api.virtualinternships.com` or `*.viplatform.net`.
+
+5. **Check Details:**
+   - Click on the certificate to verify that the domain names match `*.api.virtualinternships.com` or `*.viplatform.net` and ensure the status is "Issued."
+
+### **2. Requesting a New ACM Certificate**
+
+#### **For `*.api.virtualinternships.com` or `*.viplatform.net`:**
+
+1. **Open ACM Console:**
+   - Ensure you are in the correct region where you need the certificate.
+
+2. **Request a Certificate:**
+   - Click “Request a certificate” in the ACM dashboard.
+
+3. **Choose Certificate Type:**
+   - Select “Request a public certificate.”
+
+4. **Enter Domain Names:**
+   - For a wildcard certificate, enter `*.api.virtualinternships.com` or `*.viplatform.net` as the domain names.
+   - You can enter both patterns if you need certificates for both domains.
+
+5. **Choose Validation Method:**
+   - **DNS Validation:** ACM will provide CNAME records that need to be added to your DNS settings.
+   - **Email Validation:** ACM will send validation emails to the domain’s registered contacts.
+
+6. **Review and Confirm:**
+   - Confirm the request by reviewing the details and clicking “Confirm and request.”
+
+7. **Add DNS Records (if using DNS Validation):**
+   - For DNS validation, add the provided CNAME records to your DNS provider. Once done, return to the ACM console to continue the validation process.
+
+8. **Monitor Status:**
+   - Track the status of the certificate request. It will be marked as “Issued” once validation is successful.
+
+9. **Use the Certificate:**
+   - Associate the issued certificate with your resources such as CloudFront distributions or Elastic Load Balancers.
+
+### **Additional Tips:**
+
+- **Wildcard Certificates:** Wildcard certificates like `*.api.virtualinternships.com` or `*.viplatform.net` will cover all subdomains, but you must ensure that the domain names match exactly.
+- **Domain Ownership:** Ensure you have control over the DNS records for the domains you are requesting certificates for, as you'll need to complete domain validation.
+
 ## 6. Deploying Your DR Environment
 
 ### 6.1 Applying Terraform Configuration
@@ -356,6 +411,55 @@ region us-east-1 describe-cluster --name drs-prod-vi
    b. Update any environment-specific configurations to match your DR setup.
    c. Verify that all necessary changes from the production environment are reflected here.
 
+### 7.6.1 Updating Application Manifests
+
+It's crucial to update the Kubernetes manifests for your DR environment. Focus on the following files in the `drs-prod-vi` directory:
+
+1. Review Region-Specific Configurations:
+   - Open `cluster-autoscaler.yaml`, `external-secret.yaml`, and `aws-ebs-csi-driver.yaml`
+   - Locate the `AWS_REGION` or `REGION` environment variable or any region-specific parameters
+   - Ensure these are set to the DR region (e.g., `us-east-1`)
+
+2. Update Cluster Name in Load Balancer Controller:
+   - Edit `aws-load-balancer-controller.yaml`
+   - Find the `--cluster-name` flag in the controller arguments
+   - Verify it matches your DR EKS cluster name (e.g., `drs-prod-vi`)
+
+3. Verify SSL Certificate ARN:
+   - In all ingress resource definitions, check the annotation:
+     `alb.ingress.kubernetes.io/certificate-arn`
+   - Confirm this ARN corresponds to a valid ACM certificate in the DR region
+
+4. Validate IAM Role ARNs:
+   - For each manifest using IAM roles (e.g., `external-secret.yaml`, `aws-load-balancer-controller.yaml`), verify the role ARNs are correct for the DR region
+
+5. Update Endpoint References:
+   - In application manifests, ensure any hardcoded endpoints (e.g., for RDS, ElastiCache, MSK) are updated to use the DR region resources
+
+6. Check Resource Requests and Limits:
+   - Review and adjust CPU and memory requests/limits if your DR environment has different capacity constraints
+
+7. Verify ConfigMaps and Secrets:
+   - Ensure any environment-specific ConfigMaps or Secrets are updated for the DR context
+
+8. Update Ingress Hostnames:
+   - If using different domain names in DR, update the `host` fields in Ingress resources
+
+9. Adjust HPA (Horizontal Pod Autoscaler) Settings:
+   - Review and modify HPA configurations if your DR scaling strategy differs
+
+10. Validate PersistentVolumeClaim Configurations:
+    - Ensure storage class names and other storage-related configurations are valid for the DR region
+
+After making these changes:
+
+1. Commit the updated manifests to your version control system.
+2. Use a diff tool to double-check all changes between production and DR manifests.
+3. Consider using Helm's template rendering (`helm template`) to verify the final Kubernetes resources that will be applied.
+4. Plan a dry-run deployment in the DR environment to catch any configuration issues before an actual DR scenario.
+
+Remember, maintaining parity between production and DR environments is crucial. Establish a process to review and update these manifests whenever changes are made to the production environment.
+
 ## 8. Final Configuration Steps
 
 ### 8.1 Updating DNS Records
@@ -374,6 +478,108 @@ region us-east-1 describe-cluster --name drs-prod-vi
 2. Create a new CloudFront distribution for your DR environment.
 3. Update the S3 bucket for your front-end build.
 4. Adjust IAM policies to allow access to the DR S3 buckets.
+
+### Steps to Edit CNAME on CloudFront for Existing Records for Frontend
+
+1. Log into the AWS Management Console
+
+2. Navigate to CloudFront:
+   - From the AWS services menu, select "CloudFront" under the "Networking & Content Delivery" section
+
+3. Locate Your Distribution:
+   - In the CloudFront dashboard, you'll see a list of your distributions
+   - Find the distribution you want to modify
+
+4. Edit the Distribution:
+   - Click on the ID of the distribution you want to edit
+   - This will take you to the distribution's detail page
+   - Click the "Edit" button at the top of the page
+
+5. Navigate to the CNAME Section:
+   - Scroll down to the "Alternate Domain Names (CNAMEs)" section
+
+6. Modify CNAME Records:
+   - In the text box, you'll see your current CNAME records
+   - To add a new CNAME:
+     - Type the new domain name on a new line
+   - To remove a CNAME:
+     - Delete the line containing the CNAME you want to remove
+   - To modify a CNAME:
+     - Edit the existing domain name as needed
+
+7. SSL Certificate:
+   - If you're adding new CNAMEs, ensure that your SSL certificate covers these new domain names
+   - You may need to request a new certificate in AWS Certificate Manager if your current one doesn't include the new domains
+
+8. Review Changes:
+   - Scroll through the other settings to ensure no unintended changes were made
+
+9. Save Changes:
+   - At the bottom of the page, click "Save Changes"
+
+10. Wait for Deployment:
+    - CloudFront will now deploy your changes across its network
+    - This can take up to 15 minutes to complete
+
+11. Verify Changes:
+    - After deployment is complete, test your new or modified CNAMEs to ensure they're working correctly
+
+12. Update DNS Records:
+    - If you've added new CNAMEs, don't forget to update your DNS records with your domain registrar
+    - Add or modify CNAME records to point to your CloudFront distribution's domain name (e.g., d1234abcd.cloudfront.net)
+
+13. For DR Considerations:
+    - If this is part of your DR setup, ensure that your DR plan is updated to reflect these changes
+    - Document the process and any new CNAMEs in your DR documentation
+
+Important Notes:
+- Removing a CNAME from CloudFront doesn't automatically remove it from your DNS settings. Be sure to update your DNS records accordingly.
+- Changes to CNAMEs can affect your site's availability. It's best to perform these changes during a maintenance window.
+- Always test thoroughly after making changes to ensure your site is accessible via all intended domain names.
+- If you're using this process as part of switching to a DR environment, ensure that you have a plan to quickly update DNS records to point to your DR CloudFront distribution if needed.
+
+### **Steps to Add DNS Records in Cloudflare**
+
+1. **Log In to Cloudflare:**
+   - Go to the [Cloudflare login page](https://dash.cloudflare.com) and log in with your credentials.
+
+2. **Select Your Domain:**
+   - On the Cloudflare dashboard, select the domain (viplatform.net, or virtualinternships.com ) you want to configure DNS records for.
+
+3. **Go to DNS Settings:**
+   - Click on the “DNS” tab in the top navigation bar. This will take you to the DNS management page for your domain.
+
+4. **Add a DNS Record:**
+   - Click on the “Add record” button.
+
+5. **Choose the Record Type:**
+   - From the dropdown menu, select the type of DNS record you want to add. Common types include:
+     - **A:** Maps a domain to an IPv4 address.
+     - **AAAA:** Maps a domain to an IPv6 address.
+     - **CNAME:** Maps a domain to another domain (canonical name).
+     - **MX:** Defines mail exchange servers for your domain.
+     - **TXT:** Allows you to add arbitrary text to a domain.
+     - **SRV:** Specifies services available at specific ports.
+
+6. **Enter Record Details:**
+   - **Name:** Enter the subdomain or domain name for this record (e.g., `www`, `mail`, or `@` for the root domain).
+   - **Value:** Enter the value for the record, such as an IP address or hostname.
+   - **TTL (Time To Live):** Choose how long the DNS record should be cached by DNS resolvers. You can usually leave this as "Auto".
+   - **Proxy Status:** Choose whether to proxy traffic through Cloudflare. “Proxied” enables Cloudflare’s services like CDN and security, while “DNS only” does not use Cloudflare’s proxy.
+
+7. **Save the Record:**
+   - Click the “Save” or “Add Record” button to save your changes.
+
+8. **Verify the Record:**
+   - Once added, the new record will appear in the list of DNS records. Ensure it is correctly configured.
+
+9. **Check Propagation:**
+   - DNS changes can take some time to propagate. Use tools like [DNS Checker](https://dnschecker.org) to verify that the changes are reflected globally.
+
+### **Additional Tips:**
+- **TTL Settings:** Lower TTL values (e.g., 300 seconds) can be useful during testing, but increase them for production.
+- **Cloudflare Features:** Explore additional Cloudflare features such as SSL/TLS settings, Firewall rules (WAF), and Performance optimizations that can enhance your domain's security and performance.
+
 
 ## 9. Testing and Maintenance
 
